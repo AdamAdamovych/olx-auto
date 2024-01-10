@@ -139,4 +139,6 @@ async function clickOnElements(selectors) {
 	  selectDropdown('div[data-cy="parameters.car_from"] input[data-testid="dropdown-head-input"]', 0);
 	  selectDropdown('div[data-cy="parameters.transmission_type"] button[data-testid="dropdown-head-button"]', 1);
 	  selectDropdown('div[data-cy="parameters.exterior_condition"] button[data-testid="dropdown-head-button"]', 2);
+    
+    document.querySelector('button[data-testid=submit-btn]').addEventListener('click', () => window.olxSubmitClicked = true);
   })();
