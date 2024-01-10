@@ -27,7 +27,7 @@ const emptyConfig = {
 
 
 (async () => {
-    const packageJson = await (await fetch(packageUrl)).json();
+    const packageJson = await (await fetch(packageUrl, {headers: {"cache-control": "no-cache"}})).json();
     const version = packageJson.version;
 
     if (fs.existsSync(appPath)) {
