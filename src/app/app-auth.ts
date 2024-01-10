@@ -1,6 +1,5 @@
 import { AppBrowser } from "./app-browser";
 import { By, IWebDriverCookie, until } from 'selenium-webdriver';
-import { Config } from './config';
 
 export interface AuthData {
     cookies: IWebDriverCookie[];
@@ -8,10 +7,8 @@ export interface AuthData {
 }
 
 export class AppAuth {
-    private config: Promise<any>
 
     constructor(private browser: AppBrowser) {
-        this.config = new Config().config;
     }
 
     async authorize() {

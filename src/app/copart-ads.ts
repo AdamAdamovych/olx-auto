@@ -107,7 +107,8 @@ export class CopartAds {
         const imgElements = await this.appBrowser.driver.findElements(By.css(this.imgSelector));
 
         const files = imgElements.slice(0, imgElements.length - 2).map(async img => {
-            const href = await img.getAttribute('src');
+            let href = await img.getAttribute('src');
+            href = href.replace('_ful.jpg', '_hrs.jpg');
             console.log('Download img: ', href);
             const downloader = new Downloader({
                 url: href,

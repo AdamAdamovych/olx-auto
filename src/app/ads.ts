@@ -3,7 +3,7 @@ import { AppAuth } from "./app-auth";
 import { CopartItem } from "./copart-ads";
 import * as fs from "fs-extra";
 import { By, until } from "selenium-webdriver";
-import { Config } from "./config";
+import { AppConfig } from "./app-config";
 
 enum MappingKey {
     fuel = 'FUEL',
@@ -19,7 +19,7 @@ export class Ads {
     private config: Promise<any>;
 
     constructor(private browser: AppBrowser, private appAuth: AppAuth) {
-        this.config = new Config().config;
+        this.config = new AppConfig().config;
     }
 
     async open() {

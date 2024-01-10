@@ -8,6 +8,7 @@
         "sourceMap": true,
         "outDir": "out",
         "baseUrl": ".",
+        "rootDir": "./src/app",
         "paths": {
             "*": [
                 "node_modules/*"
@@ -16,5 +17,12 @@
     },
     "files": [
         "src/app/index.ts"
-    ]
+    ],
+    "ts-node": {
+        "transpileOnly": true,
+        "files": true,
+        "compilerOptions": {
+          "rootDir": "./src/app"
+        }
+      }
 }

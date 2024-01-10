@@ -1,12 +1,12 @@
 {
   "name": "olx_auto",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc --project tsconfig.prod.json && copy-files-from-to",
     "build:updater": "tsc --project tsconfig.updater.json && copy-files-from-to --mode updater",
-    "dev": "ts-node src/app/index.ts",
+    "dev": "cd src/app && ts-node index.ts",
     "dev:updater": "ts-node src/updater/updater.ts",
     "start": "node index.js"
   },

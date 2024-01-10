@@ -8,6 +8,7 @@
         "sourceMap": false,
         "outDir": "updater",
         "baseUrl": ".",
+        "rootDir": "src/updater",
         "paths": {
             "*": [
                 "node_modules/*"

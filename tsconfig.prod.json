@@ -8,6 +8,7 @@
         "sourceMap": false,
         "outDir": "dist",
         "baseUrl": ".",
+        "rootDir": "src/app",
         "paths": {
             "*": [
                 "node_modules/*"

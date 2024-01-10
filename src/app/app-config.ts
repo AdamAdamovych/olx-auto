@@ -1,15 +1,15 @@
 import * as fs from "fs-extra";
 
-export class Config {
+export class AppConfig {
     private readonly configPath = './config.json';
     private static configPromise: Promise<any>;
     constructor() {
-        if(!Config.configPromise) {
-            Config.configPromise = fs.readJSON(this.configPath);
+        if(!AppConfig.configPromise) {
+            AppConfig.configPromise = fs.readJSON(this.configPath);
         }
     }
 
     get config() {
-        return Config.configPromise;
+        return AppConfig.configPromise;
     }
 }
