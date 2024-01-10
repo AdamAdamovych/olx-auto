@@ -5,8 +5,8 @@
         "target": "es6",
         "noImplicitAny": false,
         "moduleResolution": "node",
-        "sourceMap": true,
-        "outDir": "out",
+        "sourceMap": false,
+        "outDir": "updater",
         "baseUrl": ".",
         "paths": {
             "*": [

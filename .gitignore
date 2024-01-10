@@ -1,5 +1,15 @@
 tmp
 node_modules
 out
-dist
 .vscode
+updater/updater.js
+dist/ads.js
+dist/app-auth.js
+dist/app-browser.js
+dist/app.js
+dist/autohelper.js
+dist/config.js
+dist/copart-ads.js
+dist/index.js
+dist/olx_auto.zip
+dist/utils.js
