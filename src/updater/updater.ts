@@ -4,7 +4,7 @@ import Downloader from "nodejs-file-downloader";
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-const packageUrl = 'https://raw.githubusercontent.com/AdamAdamovych/olx-auto/dev/dist/package.json';
+const packageUrl = 'https://raw.githubusercontent.com/AdamAdamovych/olx-auto/dev/package.json';
 const releaseUrl = 'https://github.com/AdamAdamovych/olx-auto/releases/download/{{version}}/dist.zip';
 const appPath = './app';
 const tmpPath = './downloads';
