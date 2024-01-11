@@ -120,6 +120,7 @@ export class CopartAds {
                 url: link,
                 directory: this.tmpPath,
                 maxAttempts: 3,
+                headers: {accept: 'image/jpg'}
             });
     
             return await downloader.download();

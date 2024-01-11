@@ -36,8 +36,8 @@ export class Ads {
         const title = data.info.title.length < 16 ? `${data.info.title} ${data.info.color}` : data.info.title;
 
         await this.browser.driver.findElement(By.css('textarea[data-cy=posting-title]')).sendKeys(title);
-        await this.uploadImages(data.images);
 
+        
         for(let i = 0; i < 5; i += 1) {
             await this.browser.driver.wait(async () => !(await this.isHasData()) || (await this.browser.driver.executeScript('return window.olxSubmitClicked')));
 
@@ -46,7 +46,12 @@ export class Ads {
             } else {
                 break;
             }
+
+            if(i === 0) {
+                await this.uploadImages(data.images);
+            }
         }
+        
     }
 
     private async setAdditionalData(data: CopartItem) {
