@@ -79,7 +79,10 @@ export class Ads {
     }
 
     private async uploadImages(images: string[]) {
-        await this.browser.driver.findElement(By.css('input[data-cy=attach-photos-input]')).sendKeys(images.join(' \n '));
+        for(let image of images) {
+            await this.browser.driver.findElement(By.css('input[data-cy=attach-photos-input]')).sendKeys(image);
+            await this.browser.driver.sleep(50);
+        }
     }
 
     private async isHasData(): Promise<boolean> {
