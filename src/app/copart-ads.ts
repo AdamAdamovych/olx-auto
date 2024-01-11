@@ -103,22 +103,27 @@ export class CopartAds {
 
     private async downloadImages() {
         await this.appBrowser.driver.findElement(By.css(this.viewAllTxt)).click();
-
+        await this.appBrowser.driver.wait(until.elementLocated(By.css('.hd_images_title')));
         const imgElements = await this.appBrowser.driver.findElements(By.css(this.imgSelector));
 
-        const files = imgElements.slice(0, imgElements.length - 2).map(async img => {
+        let links = await Promise.all(imgElements.slice(0, imgElements.length - 1).map(async img => {
             let href = await img.getAttribute('src');
-            href = href.replace('_ful.jpg', '_hrs.jpg');
-            console.log('Download img: ', href);
+            return href.replace('_ful.jpg', '_hrs.jpg');
+        }));
+
+        links = links.filter((link, index) => links.indexOf(link) === index);
+        
+
+        const fileReports = await Promise.all(links.map(async link => {
+            console.log('Download img: ', link);
             const downloader = new Downloader({
-                url: href,
+                url: link,
                 directory: this.tmpPath,
                 maxAttempts: 3,
             });
     
             return await downloader.download();
-        });
-        const fileReports = await Promise.all(files);
+        }));
 
         fileReports.forEach(r => r.filePath && this.allDownloadedFiles.push(r.filePath));
 

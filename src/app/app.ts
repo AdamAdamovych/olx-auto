@@ -20,7 +20,7 @@ export class App {
     }
 
     async start() {
-        const copartUrl = 'https://www.copart.com/lot/81860123/clean-title-2014-tesla-model-s-fl-jacksonville-north';//prompt('Please enter Copart url >> ');
+        const copartUrl = prompt('Please enter Copart url >> ');
         const copartData = await this.copartAds.getFrom(copartUrl);
 
         console.log(copartData);
