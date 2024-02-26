@@ -20,7 +20,7 @@ export class App {
     }
 
     async start() {
-        const copartUrl = 'https://www.copart.com/lot/82317623/clean-title-2010-audi-a4-premium-ca-sun-valley'//prompt('Please enter Copart url >> ');
+        const copartUrl = prompt('Please enter Copart url >> ');
         const copartData = await this.copartAds.getFrom(copartUrl);
 
         console.log(copartData);
