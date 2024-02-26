@@ -5,28 +5,28 @@ import { AppConfig } from "./app-config";
 export class AppBrowser {
     private static _driver: WebDriver;
     private static initPromise: Promise<boolean> | null;
-    private config: Promise<AppConfig>;
+    private config: AppConfig;
 
     get driver() {
         return AppBrowser._driver;
     }
 
     constructor() {
+        this.config = new AppConfig();
         this.open();
-        this.config = new AppConfig().config;
     }
 
-    static async prepare(cfg: AppConfig) {
+    static async prepare(cfg: any) {
         const options = new Options();
 
-        const path = (await cfg.config).user_path;
+        const path = (await cfg).user_path;
         
         if(process.platform === 'win32') {
             options.addArguments(`user-data-dir=${path || 'C:/selenium'}`);
         } else {
             options.addArguments(`user-data-dir= ${path || '~/Library/Application Support/Google/Chrome/Selenium'}`);
         }
-        const version = (await cfg.config).chrome_version;
+        const version = (await cfg).chrome_version;
         if(version) {
             options.setBrowserVersion(version);
         }
@@ -36,9 +36,9 @@ export class AppBrowser {
         return true;
     }
 
-    async open() {
+    open() {
         if(!AppBrowser.initPromise) {
-            AppBrowser.initPromise = AppBrowser.prepare(await this.config);
+            AppBrowser.initPromise = this.config.config.then(cfg => AppBrowser.prepare(cfg));
         }
     }
 
