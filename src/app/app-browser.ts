@@ -26,12 +26,8 @@ export class AppBrowser {
         } else {
             options.addArguments(`user-data-dir= ${path || '~/Library/Application Support/Google/Chrome/Selenium'}`);
         }
-        const version = (await cfg).chrome_version;
-        if(version) {
-            options.setBrowserVersion(version);
-        }
         
-        options.addArguments('--no-sandbox');
+        options.addArguments('--no-sandbox', '--disable-build-check');
         this._driver = await new Builder().setChromeOptions(options).forBrowser('chrome').build();
         return true;
     }
