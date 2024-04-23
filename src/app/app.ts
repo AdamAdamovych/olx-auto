@@ -25,7 +25,7 @@ export class App {
 
     async start() {
         try {
-            const copartUrl = prompt('Please enter Copart url >> ');
+            const copartUrl = 'https://www.copart.com/lot/49743214/clean-title-2014-audi-a4-premium-ma-north-boston'//prompt('Please enter Copart url >> ');
             const copartData = await this.copartAds.getFrom(copartUrl);
 
             console.log(copartData);

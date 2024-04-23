@@ -46,6 +46,8 @@ export class CopartAds {
 
     async getFrom(url: string): Promise<CopartItem> {
         await this.appBrowser.goto(url);
+
+        console.log('Starting working...');
         await this.appBrowser.driver.wait(until.elementLocated(By.css('.download-image > a')));
 
         const result = await Promise.all([

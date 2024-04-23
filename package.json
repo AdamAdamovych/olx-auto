@@ -20,7 +20,7 @@
     "node-fetch": "^2.7.0",
     "nodejs-file-downloader": "^4.12.1",
     "prompt-sync": "^4.2.0",
-    "selenium-webdriver": "latest"
+    "selenium-webdriver": "^4.19.0"
   },
   "devDependencies": {
     "@types/decompress": "^4.2.7",

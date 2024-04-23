@@ -5,6 +5,7 @@ export class AppConfig {
     private static configPromise: Promise<any>;
     constructor() {
         if(!AppConfig.configPromise) {
+            console.log('Reading config...');
             AppConfig.configPromise = fs.readJSON(this.configPath);
         }
     }

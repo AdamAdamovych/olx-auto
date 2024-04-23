@@ -1,45 +1,58 @@
-import { Builder, WebDriver } from "selenium-webdriver";
+import { Browser, Builder, WebDriver, logging } from "selenium-webdriver";
 import { Options } from "selenium-webdriver/chrome";
-import { AppConfig } from "./app-config";
+import os from 'os'
+import * as path from 'path';
+import { Level } from "selenium-webdriver/lib/logging";
 
 export class AppBrowser {
     private static _driver: WebDriver;
     private static initPromise: Promise<boolean> | null;
-    private config: AppConfig;
 
     get driver() {
         return AppBrowser._driver;
     }
 
     constructor() {
-        this.config = new AppConfig();
         this.open();
     }
 
-    static async prepare(cfg: any) {
+    static async prepare() {
+        console.log('Preparing browser instance...');
         const options = new Options();
 
-        const path = (await cfg).user_path;
-        
-        if(process.platform === 'win32') {
-            options.addArguments(`user-data-dir=${path || 'C:/selenium'}`);
-        } else {
-            options.addArguments(`user-data-dir= ${path || '~/Library/Application Support/Google/Chrome/Selenium'}`);
+        const tmppath = path.join(os.tmpdir(), 'olx_selenium_data');
+        console.log('Created profile in ', tmppath);
+
+        options.addArguments(`user-data-dir=${tmppath}`, '--no-sandbox');
+
+        console.log('Building browser instance...');
+        try {
+            const builder = new Builder();
+            this._driver = await builder
+                .setChromeOptions(options)
+                .forBrowser(Browser.CHROME, '120.0.6099.199')
+                .build();
+
+            console.log('Built is ok');
+            return true;
+        } catch (err) {
+            console.error(err);
         }
-        
-        options.addArguments('--no-sandbox', '--disable-build-check');
-        this._driver = await new Builder().setChromeOptions(options).forBrowser('chrome').build();
-        return true;
+
+        return false;
     }
 
     open() {
-        if(!AppBrowser.initPromise) {
-            AppBrowser.initPromise = this.config.config.then(cfg => AppBrowser.prepare(cfg));
+        if (!AppBrowser.initPromise) {
+            AppBrowser.initPromise = AppBrowser.prepare();
         }
     }
 
     async goto(url: string) {
+        console.log('Waiting for browser');
         await this.waitUntilInit();
+
+        console.log('Go to link');
         await this.driver.get(url);
     }
 
