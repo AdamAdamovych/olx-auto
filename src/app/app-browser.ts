@@ -2,18 +2,15 @@ import { Browser, Builder, WebDriver, logging } from "selenium-webdriver";
 import { Options } from "selenium-webdriver/chrome";
 import os from 'os'
 import * as path from 'path';
-import { Level } from "selenium-webdriver/lib/logging";
+import { AppConfig } from "./app-config";
 
 export class AppBrowser {
     private static _driver: WebDriver;
     private static initPromise: Promise<boolean> | null;
+    private static config = new AppConfig().config;
 
     get driver() {
         return AppBrowser._driver;
-    }
-
-    constructor() {
-        this.open();
     }
 
     static async prepare() {
@@ -26,14 +23,21 @@ export class AppBrowser {
         options.addArguments(`user-data-dir=${tmppath}`, '--no-sandbox');
 
         console.log('Building browser instance...');
+
+        const cfg = await this.config;
+
+        if(cfg.CHROME_VERSION) {
+            console.log('Version: ', cfg.CHROME_VERSION);
+        }
+
         try {
             const builder = new Builder();
             this._driver = await builder
                 .setChromeOptions(options)
-                .forBrowser(Browser.CHROME, '120.0.6099.199')
+                .forBrowser(Browser.CHROME, cfg.CHROME_VERSION)
                 .build();
 
-            console.log('Built is ok');
+            console.log('Built is ok. Driver status=', !!this._driver);
             return true;
         } catch (err) {
             console.error(err);

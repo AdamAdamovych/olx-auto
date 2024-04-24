@@ -2,9 +2,10 @@ import { AppBrowser } from "./app-browser";
 import { AppAuth } from "./app-auth";
 import { CopartAds } from "./copart-ads";
 import { Ads } from "./ads";
-import pr from "prompt-sync";
+import readline from "node:readline/promises";
 
-const prompt = pr();
+const { stdin: input, stdout: output } = require('node:process');
+const rl = readline.createInterface({ input, output });
 
 export class App {
     private appAuth: AppAuth;
@@ -25,7 +26,9 @@ export class App {
 
     async start() {
         try {
-            const copartUrl = prompt('Please enter Copart url >> ');
+            const copartUrl = await rl.question('Please enter Copart url >> ');
+            console.log('Openning -> ', copartUrl);
+            this.browser.open();
             const copartData = await this.copartAds.getFrom(copartUrl);
 
             console.log(copartData);
