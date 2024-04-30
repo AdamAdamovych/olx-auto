@@ -6,4 +6,5 @@ import { App } from "./app";
     console.log('Starting app...')
     const app = new App();
     await app.start();
+    process.exit(0);
 })();
