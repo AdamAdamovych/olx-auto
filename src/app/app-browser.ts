@@ -1,4 +1,4 @@
-import { Browser, Builder, WebDriver, logging } from "selenium-webdriver";
+import { Browser, Builder, WebDriver } from "selenium-webdriver";
 import { Options } from "selenium-webdriver/chrome";
 import os from 'os'
 import * as path from 'path';
@@ -20,7 +20,14 @@ export class AppBrowser {
         const tmppath = path.join(os.tmpdir(), 'olx_selenium_data');
         console.log('Created profile in ', tmppath);
 
-        options.addArguments(`user-data-dir=${tmppath}`, '--no-sandbox');
+
+        options.addArguments(
+            `user-data-dir=${tmppath}`, 
+            '--no-sandbox',
+            '--disable-blink-features=AutomationControlled'
+        );
+        //options.excludeSwitches("enable-automation");
+        //options.add_experimental_option('useAutomationExtension', False)
 
         console.log('Building browser instance...');
 
@@ -31,11 +38,33 @@ export class AppBrowser {
         }
 
         try {
-            const builder = new Builder();
-            this._driver = await builder
+            const driver = new Builder()
                 .setChromeOptions(options)
+                .withCapabilities({
+                    'goog:chromeOptions': {
+                        excludeSwitches: [
+                            'enable-logging',
+                            'enable-automation',
+                            'useAutomationExtension',
+                        ],
+                    },
+                })
                 .forBrowser(Browser.CHROME, cfg.CHROME_VERSION)
                 .build();
+                
+
+            this._driver = await driver;
+            await this._driver.manage().window().maximize();
+            await this._driver.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
+            const cdpConnection = await this._driver.createCDPConnection('page');
+            await cdpConnection.execute(
+                'Page.addScriptToEvaluateOnNewDocument', {
+                  source: `
+                      const newProto = navigator.__proto__;
+                      delete newProto.webdriver;
+                      navigator.__proto__ = newProto;
+                  `
+              });
 
             console.log('Built is ok. Driver status=', !!this._driver);
             return true;

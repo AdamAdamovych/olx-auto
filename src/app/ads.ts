@@ -84,6 +84,7 @@ export class Ads {
     }
 
     private async uploadImages(images: string[]) {
+        await this.browser.driver.sleep(100);
         for(let image of images) {
             await this.browser.driver.findElement(By.css('input[data-cy=attach-photos-input]')).sendKeys(image);
             await this.browser.driver.sleep(50);

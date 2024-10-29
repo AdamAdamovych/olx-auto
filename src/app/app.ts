@@ -27,6 +27,8 @@ export class App {
     async start() {
         try {
             const copartUrl = await rl.question('Please enter Copart url >> ');
+            //const copartUrl = 'https://www.copart.com/lot/69827324/clean-title-2016-audi-a4-premium-s-line-tx-dallas-south';
+
             console.log('Openning -> ', copartUrl);
             this.browser.open();
             const copartData = await this.copartAds.getFrom(copartUrl);

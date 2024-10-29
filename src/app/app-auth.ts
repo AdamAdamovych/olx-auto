@@ -1,8 +1,8 @@
 import { AppBrowser } from "./app-browser";
-import { By, IWebDriverCookie, until } from 'selenium-webdriver';
+import { By, until } from 'selenium-webdriver';
 
 export interface AuthData {
-    cookies: IWebDriverCookie[];
+    cookies: any[];
     ls: any;
 }
 

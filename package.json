@@ -1,6 +1,6 @@
 {
   "name": "olx_auto",
-  "version": "2.0.13",
+  "version": "2.0.14",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,13 +19,14 @@
     "fs-extra": "^11.2.0",
     "node-fetch": "^2.7.0",
     "nodejs-file-downloader": "^4.12.1",
-    "selenium-webdriver": "^4.19.0"
+    "selenium-webdriver": "^4.25.0",
+    "webdriver-manager": "^12.1.9"
   },
   "devDependencies": {
     "@types/decompress": "^4.2.7",
     "@types/fs-extra": "^11.0.4",
     "@types/node-fetch": "^2.6.10",
-    "@types/selenium-webdriver": "^4.1.21",
+    "@types/selenium-webdriver": "^4.1.26",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
