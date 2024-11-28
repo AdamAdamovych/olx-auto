@@ -41,8 +41,6 @@ export class App {
                 images: ['D:\\Dev\\olx_auto\\tmp\\img.jpg', 'D:\\Dev\\olx_auto\\tmp\\img2.jpg']
             }*/
             await this.ads.setData(copartData);
-
-            console.log('Done!');
             //this.browser.close();
         } catch(err) {
             console.error(err);

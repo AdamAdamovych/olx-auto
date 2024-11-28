@@ -71,9 +71,14 @@ export class Ads {
         await this.selectorHelper.waitForLoading();
 
         for(let i = 0; i < 5; i += 1) {
+            const hasData = await this.isHasData();
+            if(hasData) {
+                console.log('Done!');
+            }
+
             await this.browser.driver.wait(async () => !(await this.isHasData()) || (await this.browser.driver.executeScript('return window.olxSubmitClicked')));
 
-            if(!(await this.isHasData())) {
+            if(!hasData) {
                 await this.setAdditionalData(data);
             } else {
                 break;
