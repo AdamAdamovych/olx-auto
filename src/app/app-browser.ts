@@ -33,12 +33,12 @@ export class AppBrowser {
 
         const cfg = await this.config;
 
-        if(cfg.CHROME_VERSION) {
-            console.log('Version: ', cfg.CHROME_VERSION);
+        if(cfg.chrome_version) {
+            console.log('Version: ', cfg.chrome_version);
         }
 
         try {
-            const driver = new Builder()
+            this._driver = await new Builder()
                 .setChromeOptions(options)
                 .withCapabilities({
                     'goog:chromeOptions': {
@@ -49,11 +49,10 @@ export class AppBrowser {
                         ],
                     },
                 })
-                .forBrowser(Browser.CHROME, cfg.CHROME_VERSION)
+                .forBrowser(Browser.CHROME, cfg.chrome_version)
                 .build();
                 
 
-            this._driver = await driver;
             await this._driver.manage().window().maximize();
             await this._driver.executeScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})");
             const cdpConnection = await this._driver.createCDPConnection('page');

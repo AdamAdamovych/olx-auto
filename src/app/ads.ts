@@ -1,25 +1,52 @@
 import { AppBrowser } from "./app-browser";
 import { AppAuth } from "./app-auth";
 import { CopartItem } from "./copart-ads";
-import * as fs from "fs-extra";
 import { By, until } from "selenium-webdriver";
-import { AppConfig } from "./app-config";
+import { AppConfig, AppConfigDef } from "./app-config";
+import { SelectorHelper } from "./selector-helper";
 
 enum MappingKey {
-    fuel = 'FUEL',
-    color = 'COLOR',
-    drive = 'DRIVE',
-    body = 'BODY',
+    fuel = 'fuel',
+    color = 'color',
+    drive = 'drive',
+    body = 'body',
 }
 
 export class Ads {
-    private readonly olxScriptPath = './olx_script.js';
+    
+    private labels = {
+        model: 'Модель',
+        year: 'Рік випуску',
+        price: 'Ціна',
+        odometer: 'Пробіг',
+        engine_liters: `Об'єм двигуна`,
+        body_type: 'Тип кузова',
+        fuel_type: 'Вид палива',
+        drive_type: 'Тип приводу',
+        color: 'Kолір',
+    }
 
-    private readonly modelSelector = 'div[data-cy="parameters.model"] div[data-testid="dropdown-menu-item"] > a';
-    private config: Promise<any>;
+
+    private waitElements = [
+        'input[data-testid="attach-photos-input"]',
+        'div[data-cy="parameters.model"]',
+        'input[data-testid="parameters.motor_year"]',
+        'input[data-testid="price-input"]',
+        'input[data-testid="parameters.motor_mileage_thou"]',
+        'input[data-testid="parameters.motor_engine_size_litre"]',
+        'div[data-cy="parameters.car_body"]',
+        'div[data-cy="parameters.fuel_type"]',
+        'div[data-cy="parameters.drive_type"]',
+        'div[data-cy="parameters.color"]'
+    ]
+
+    private config: Promise<AppConfigDef>;
+
+    private selectorHelper:SelectorHelper;
 
     constructor(private browser: AppBrowser, private appAuth: AppAuth) {
         this.config = new AppConfig().config;
+        this.selectorHelper = new SelectorHelper(browser);
     }
 
     async open() {
@@ -36,8 +63,13 @@ export class Ads {
         const title = data.info.title.length < 16 ? `${data.info.title} ${data.info.color}` : data.info.title;
 
         await this.browser.driver.findElement(By.css('textarea[data-cy=posting-title]')).sendKeys(title);
-
         
+        for(let selector of this.waitElements) {
+            await this.browser.driver.wait(until.elementLocated(By.css(selector)));
+        }
+
+        await this.selectorHelper.waitForLoading();
+
         for(let i = 0; i < 5; i += 1) {
             await this.browser.driver.wait(async () => !(await this.isHasData()) || (await this.browser.driver.executeScript('return window.olxSubmitClicked')));
 
@@ -55,38 +87,58 @@ export class Ads {
     }
 
     private async setAdditionalData(data: CopartItem) {
+        const config = await this.config;
+
         await this.browser.driver.wait(until.elementLocated(By.css('div[data-cy="parameters.car_state_type"]')));
-        await this.injectScript(data);
 
         await this.tryToSelectModel(data.info.title);
 
-        const promises = [
-            this.browser.driver.findElement(By.css('input[data-cy="parameters.motor_year"]')).sendKeys(data.info.year),
-        ];
 
-        if(data.autoHelper.avgPrice) {
-            promises.push(this.browser.driver.findElement(By.css('input[data-cy=posting-price]')).sendKeys(data.autoHelper.avgPrice));
+        await this.setDropdownValueByMapping(this.labels.body_type, MappingKey.body, data.info.bodyType);
+        await this.setDropdownValueByMapping(this.labels.fuel_type, MappingKey.fuel, data.info.fuelType);
+        await this.setDropdownValueByMapping(this.labels.drive_type, MappingKey.drive, data.info.drive);
+        await this.setDropdownValueByMapping(this.labels.color, MappingKey.color, data.info.color);
+
+        for(let tb of config.dataset.dropdownValues) {
+            await this.selectorHelper.selectDropdownValue(tb.selector, tb.value);
         }
 
+        for(let btn of config.dataset.buttonClicks) {
+            await this.selectorHelper.clickButton(btn)
+        }
+
+        for(let ch of config.dataset.checkboxValues) {
+            await this.selectorHelper.selectCheckbox(ch)
+        }
+
+
+        await this.selectorHelper.setText(this.labels.year, data.info.year.toString());
+        if(data.autoHelper.avgPrice) {
+            await this.selectorHelper.setText(this.labels.price, data.autoHelper.avgPrice.toString());
+        }
         if(data.info.odometer) {
-            promises.push(this.browser.driver.findElement(By.css('input[data-cy="parameters.motor_mileage_thou"]')).sendKeys(Math.round(data.info.odometer.km / 1000)));
+            await this.selectorHelper.setText(this.labels.odometer, Math.round(data.info.odometer.km / 1000).toString());
         }
         if(data.info.engine?.liters) {
-            promises.push(this.browser.driver.findElement(By.css('input[data-cy="parameters.motor_engine_size_litre"]')).sendKeys(data.info.engine.liters));
+            await this.selectorHelper.setText(this.labels.engine_liters, data.info.engine.liters);
         }
 
-        promises.push(this.setDropdownValueByMapping('parameters.car_body', MappingKey.body, data.info.bodyType));
-        promises.push(this.setDropdownValueByMapping('parameters.fuel_type', MappingKey.fuel, data.info.fuelType));
-        promises.push(this.setDropdownValueByMapping('parameters.drive_type', MappingKey.drive, data.info.drive));
-        promises.push(this.setDropdownValueByMapping('parameters.color', MappingKey.color, data.info.color));
+        for(let tb of config.dataset.textValues) {
+            const text = tb.value
+                .replace('{{miles}}', data.info.odometer.km.toString() || '0')
+                .replace('{{price}}', data.autoHelper.avgPrice.toString() || '0')
+                .replace('{{drive}}', data.info.drive || '')
+                .replace('{{engine}}', data.info.engine.liters || '');
 
-        await Promise.all(promises);
+
+            await this.selectorHelper.setText(tb.selector, text, true);
+        }
     }
 
     private async uploadImages(images: string[]) {
         await this.browser.driver.sleep(100);
         for(let image of images) {
-            await this.browser.driver.findElement(By.css('input[data-cy=attach-photos-input]')).sendKeys(image);
+            await this.browser.driver.findElement(By.css('input[data-testid="attach-photos-input"]')).sendKeys(image);
             await this.browser.driver.sleep(50);
         }
     }
@@ -97,23 +149,11 @@ export class Ads {
         return value?.length > 0;
     }
 
-    private async injectScript(item: CopartItem) {
-        const scriptBuff = await fs.readFile(this.olxScriptPath);
-
-        let priceFormat = item.autoHelper.avgPrice ? new Intl.NumberFormat(['id']).format(item.autoHelper.avgPrice) : null;
-        const odoFormat = new Intl.NumberFormat(['id']).format(item.info.odometer?.mi || 0);
-        const script = scriptBuff.toString()
-            .replace('{{price}}', priceFormat || '')
-            .replace('{{miles}}', odoFormat)
-            .replace('{{drive}}', item.info.drive || '')
-            .replace('{{engine}}', item.info.engine?.liters || item.info.fuelType || '');
-        
-        await this.browser.driver.executeScript(script);
-    }
+    
 
     private async getMapping(key: MappingKey, value?: string): Promise<number | null> {
         const config = await this.config;
-        const mapping = config['MAPS'];
+        const mapping = config['maps'];
         const defaultValue = typeof mapping[key]['DEFAULT'] === 'number' ? mapping[key]['DEFAULT'] : null;
 
         if(!value || typeof mapping[key][value] !== 'number') {
@@ -122,28 +162,19 @@ export class Ads {
         return mapping[key][value];
     }
 
-    private async setDropdownData(dataCy: string, index: number) {
-        const selector = `div[data-cy="${dataCy}"] input[data-testid=dropdown-head-input], div[data-cy="${dataCy}"] button[data-testid=dropdown-head-button]`;
-        await this.browser.driver.executeScript(`selectDropdown('${selector}', ${index});`);
-    }
-
-    private async setDropdownValueByMapping(dataCy: string, mappingKey: MappingKey, rawValue?: string) {
+    private async setDropdownValueByMapping(label: string, mappingKey: MappingKey, rawValue?: string) {
         const value = await this.getMapping(mappingKey, rawValue);
         if(typeof value === 'number') {
-            this.setDropdownData(dataCy, value);
+            await this.selectorHelper.selectDropdownValue(label, value)
         }
     }
 
     private async tryToSelectModel(carTitle: string) {
-        await this.browser.driver.executeScript(`openDropdown('div[data-cy="parameters.model"] input[data-testid="dropdown-head-input"], div[data-cy="parameters.model"] button[data-testid="dropdown-head-button"]')`);
-        await this.browser.driver.wait(until.elementLocated(By.css('div[data-cy="parameters.model"] ul[data-testid=dropdown-list]')));
-
-        const modelItems = await this.browser.driver.findElements(By.css(this.modelSelector));
-        const models = await Promise.all(modelItems.map(i => i.getText()));
+        const models = await this.selectorHelper.getDropdownValues(this.labels.model);
         const title = carTitle.slice(5); // skip year
         const index = models.findIndex(model => title.toUpperCase().includes(model.toUpperCase()));
         if(index >= 0) {
-            await this.setDropdownData('parameters.model', index);
+            await this.selectorHelper.selectDropdownValue(this.labels.model, index);
             return;
         }
     }

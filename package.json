@@ -1,13 +1,18 @@
 {
-  "name": "olx_auto",
-  "version": "2.0.14",
+  "name": "@adamadamovych/olx_auto",
+  "version": "3.0.0",
   "description": "",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adamadamovych/olx-auto.git"
+  },
+  "publishConfig": {
+    "@adamadamovych:registry": "https://npm.pkg.github.com"
+  },
   "scripts": {
     "build": "tsc --project tsconfig.prod.json && copy-files-from-to",
-    "build:updater": "tsc --project tsconfig.updater.json && copy-files-from-to --mode updater",
     "dev": "cd src/app && ts-node index.ts",
-    "dev:updater": "ts-node src/updater/updater.ts",
     "start": "node index.js"
   },
   "author": "",
@@ -19,7 +24,7 @@
     "fs-extra": "^11.2.0",
     "node-fetch": "^2.7.0",
     "nodejs-file-downloader": "^4.12.1",
-    "selenium-webdriver": "^4.25.0",
+    "selenium-webdriver": "^4.27.0",
     "webdriver-manager": "^12.1.9"
   },
   "devDependencies": {
@@ -34,46 +39,19 @@
     {
       "from": "./package.json",
       "to": {
-        "updater": {
-          "skip": true
-        },
         "default": "./dist/package.json"
       }
     },
     {
       "from": "./package-lock.json",
       "to": {
-        "updater": {
-          "skip": true
-        },
         "default": "./dist/package-lock.json"
       }
     },
     {
-      "from": "./src/app/olx_script.js",
+      "from": "./.npmrc",
       "to": {
-        "updater": {
-          "skip": true
-        },
-        "default": "./dist/olx_script.js"
-      }
-    },
-    {
-      "from": "./src/updater/package.json",
-      "to": {
-        "default": {
-          "skip": true
-        },
-        "updater": "./updater/package.json"
-      }
-    },
-    {
-      "from": "./src/updater/package-lock.json",
-      "to": {
-        "default": {
-          "skip": true
-        },
-        "updater": "./updater/package-lock.json"
+        "default": "./dist/.npmrc"
       }
     }
   ],
