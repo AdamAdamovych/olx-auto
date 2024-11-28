@@ -42,6 +42,7 @@ export class App {
             }*/
             await this.ads.setData(copartData);
 
+            console.log('Done!');
             //this.browser.close();
         } catch(err) {
             console.error(err);

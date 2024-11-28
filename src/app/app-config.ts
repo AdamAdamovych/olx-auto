@@ -46,10 +46,11 @@ export class AppConfig {
     maps:{
        fuel:{
           "HYBRID ENGINE":5,
-          "DEFAULT":6
+          "DEFAULT":0
        },
        color:{
-          "PURPLE":22
+          "PURPLE":22,
+          "DEFAULT":0
        },
        drive:{
           "ALL-WHEEL DRIVE":0,
@@ -57,7 +58,7 @@ export class AppConfig {
        },
        body:{
           "CARGO VAN":9,
-          "DEFAULT":8
+          "DEFAULT":0
        }
     },
     dataset: {
