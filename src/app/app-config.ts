@@ -17,7 +17,8 @@ export interface AppConfigDef {
 }
 
 export class AppConfig {
-    private readonly filename = __dirname + '/config.js';
+    private readonly altFilename = __dirname + '/config.js';
+    private readonly filename = '../../../config.js';
 
     private static configPromise: Promise<any>;
     constructor() {
@@ -25,7 +26,11 @@ export class AppConfig {
             if(fs.existsSync(this.filename)) {
                 console.log('Reading config...');
                 AppConfig.configPromise = import(this.filename).then(m => m.default.default);
-            } else {
+            } else if(fs.existsSync(this.altFilename)) {
+                console.log('Reading config...');
+                AppConfig.configPromise = import(this.altFilename).then(m => m.default.default);
+            }
+            else {
                 console.log('Creating config...');
                 AppConfig.configPromise = this.createDefault().then(() => import(this.filename)).then(m => m.default.default);
             }
@@ -72,7 +77,6 @@ export class AppConfig {
       ],
     }
  };`;
-
 
         await fs.createFile(this.filename);
         await fs.writeFile(this.filename, data);
