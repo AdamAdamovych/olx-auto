@@ -130,10 +130,10 @@ export class Ads {
 
         for(let tb of config.dataset.textValues) {
             const text = tb.value
-                .replace('{{miles}}', data.info.odometer.km.toString() || '0')
-                .replace('{{price}}', data.autoHelper.avgPrice.toString() || '0')
+                .replace('{{miles}}', data.info.odometer?.km?.toString() || '0')
+                .replace('{{price}}', data.autoHelper.avgPrice?.toString() || '0')
                 .replace('{{drive}}', data.info.drive || '')
-                .replace('{{engine}}', data.info.engine.liters || '');
+                .replace('{{engine}}', data.info.engine?.liters || '');
 
 
             await this.selectorHelper.setText(tb.selector, text, true);

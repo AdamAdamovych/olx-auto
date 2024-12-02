@@ -23,12 +23,13 @@ export class AppConfig {
     private static configPromise: Promise<any>;
     constructor() {
         if(!AppConfig.configPromise) {
-            if(fs.existsSync(this.filename)) {
-                console.log('Reading config...');
-                AppConfig.configPromise = import(this.filename).then(m => m.default.default);
-            } else if(fs.existsSync(this.altFilename)) {
+            if(fs.existsSync(this.altFilename)) {
                 console.log('Reading config...');
                 AppConfig.configPromise = import(this.altFilename).then(m => m.default.default);
+            }
+            else if(fs.existsSync(this.filename)) {
+                console.log('Reading config...');
+                AppConfig.configPromise = import(this.filename).then(m => m.default.default);
             }
             else {
                 console.log('Creating config...');
