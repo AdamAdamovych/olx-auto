@@ -128,13 +128,30 @@ export class Ads {
             await this.selectorHelper.setText(this.labels.engine_liters, data.info.engine.liters);
         }
 
-        for(let tb of config.dataset.textValues) {
-            const text = tb.value
-                .replace('{{miles}}', data.info.odometer?.km?.toString() || '0')
-                .replace('{{price}}', data.autoHelper.avgPrice?.toString() || '0')
-                .replace('{{drive}}', data.info.drive || '')
-                .replace('{{engine}}', data.info.engine?.liters || '');
 
+        
+
+        const infoObject = {
+            miles: data.info.odometer?.mi?.toString() || '0',
+            km: data.info.odometer?.km?.toString() || '0',
+            price: data.autoHelper.avgPrice?.toString() || '0',
+            drive: data.info.drive || '',
+            engine: data.info.engine?.liters || '',
+            lot_num: data.info.lotNum,
+            title: data.info.title,
+            color: data.info.color || '',
+            fuel_type: data.info.fuelType || '',
+            body_type: data.info.bodyType || '',
+            year: data.info.year.toString(),
+        };
+
+        for(let tb of config.dataset.textValues) {
+            let text = tb.value;
+
+            const keys = Object.keys(infoObject);
+            for(let key of keys) {
+                text = text.replace(`{{${key}}}`, infoObject[key]);
+            }
 
             await this.selectorHelper.setText(tb.selector, text, true);
         }
