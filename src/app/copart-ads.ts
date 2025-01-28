@@ -34,8 +34,8 @@ export interface CopartItem {
 export class CopartAds {
     readonly tmpPath = './tmp';
 
-    private readonly viewAllTxt = '.viewalltxt';
-    private readonly imgSelector = '.viewAllPhotosRelative img';
+    private readonly viewAllTxt = '.see-all-photos-block';
+    private readonly imgSelector = '.p-galleria-thumbnail-items img';
 
     private readonly allDownloadedFiles: string[] = [];
     private readonly autoHelper: Autohelper = new Autohelper();
@@ -48,7 +48,7 @@ export class CopartAds {
         await this.appBrowser.goto(url);
 
         console.log('Starting working...');
-        await this.appBrowser.driver.wait(until.elementLocated(By.css('.download-image > a')));
+        await this.appBrowser.driver.wait(until.elementLocated(By.css(this.viewAllTxt)));
 
         const result = await Promise.all([
             this.scanInfo(),
@@ -105,12 +105,12 @@ export class CopartAds {
 
     private async downloadImages() {
         await this.appBrowser.driver.findElement(By.css(this.viewAllTxt)).click();
-        await this.appBrowser.driver.wait(until.elementLocated(By.css('.hd_images_title')));
+        await this.appBrowser.driver.wait(until.elementLocated(By.id('zoomImageContainer')));
         const imgElements = await this.appBrowser.driver.findElements(By.css(this.imgSelector));
 
         let links = await Promise.all(imgElements.slice(0, imgElements.length - 1).map(async img => {
             let href = await img.getAttribute('src');
-            return href.replace('_ful.jpg', '_hrs.jpg');
+            return href.replace('_thb.jpg', '_hrs.jpg').replace('_ful.jpg', '_hrs.jpg');
         }));
 
         links = links.filter((link, index) => links.indexOf(link) === index);
