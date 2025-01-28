@@ -35,7 +35,7 @@ export class CopartAds {
     readonly tmpPath = './tmp';
 
     private readonly viewAllTxt = '.see-all-photos-block';
-    private readonly imgSelector = '.p-galleria-thumbnail-items img';
+    private readonly imgSelector = '.p-galleria-thumbnail-items-container .p-galleria-thumbnail-items img';
 
     private readonly allDownloadedFiles: string[] = [];
     private readonly autoHelper: Autohelper = new Autohelper();
@@ -104,18 +104,16 @@ export class CopartAds {
     }
 
     private async downloadImages() {
-        await this.appBrowser.driver.findElement(By.css(this.viewAllTxt)).click();
-        await this.appBrowser.driver.wait(until.elementLocated(By.id('zoomImageContainer')));
-        const imgElements = await this.appBrowser.driver.findElements(By.css(this.imgSelector));
+        this.appBrowser.driver.wait(until.elementLocated(By.css(this.viewAllTxt)));
+        const imgCountRaw = await this.appBrowser.driver.findElement(By.css(this.viewAllTxt)).getText();
+        const imgCount = Number.parseInt(imgCountRaw.replace(/\D+/g, ''));
+        let links = await this.getNextBatchImgs();
 
-        let links = await Promise.all(imgElements.slice(0, imgElements.length - 1).map(async img => {
-            let href = await img.getAttribute('src');
-            return href.replace('_thb.jpg', '_hrs.jpg').replace('_ful.jpg', '_hrs.jpg');
-        }));
-
-        links = links.filter((link, index) => links.indexOf(link) === index);
+        while(links.length < imgCount) {
+            await this.appBrowser.driver.findElement(By.css('.galleria-thumbnail-controls > span:last-child')).click();
+            links = links.concat(await this.getNextBatchImgs());
+        }
         
-
         const fileReports = await Promise.all(links.map(async link => {
             console.log('Download img: ', link);
             const downloader = new Downloader({
@@ -131,6 +129,19 @@ export class CopartAds {
         fileReports.forEach(r => r.filePath && this.allDownloadedFiles.push(r.filePath));
 
         return this.allDownloadedFiles.map(p => path.resolve(p));
+    }
+
+    private async getNextBatchImgs() {
+        await this.appBrowser.driver.wait(until.elementLocated(By.css(this.imgSelector)));
+        const imgElements = await this.appBrowser.driver.findElements(By.css(this.imgSelector));
+
+        let links = await Promise.all(imgElements.map(async img => {
+            let href = await img.getAttribute('src');
+            return href.replace('_thb.jpg', '_hrs.jpg').replace('_ful.jpg', '_hrs.jpg');
+        }));
+
+        links = links.filter((link, index) => links.indexOf(link) === index);
+        return links;
     }
 
     private normalizeOdo(odo?: string | null): {km: number, mi: number} | null {
